@@ -34,9 +34,8 @@ module bottle_fsm(
                                 ? acc_btl : acc_cur;
     assign bottle_count_bcd  = acc_btl;
 
-    // ---- 蜂鸣器: 报警态复用主时钟方波, 不增加寄存器 ----
-    wire alarm_on = (work_state == S_HALT) | (work_state == S_WARN);
-    assign buzzer = alarm_on & clk;
+    // ---- 蜂鸣器: S_HALT/S_WARN 共用 work_state[1], 避免额外比较逻辑 ----
+    assign buzzer = work_state[1] & clk;
 
     // ---- 预判逻辑 ----
     wire bottle_about_full = (acc_cur == (pills_per_bottle - 8'h01))
