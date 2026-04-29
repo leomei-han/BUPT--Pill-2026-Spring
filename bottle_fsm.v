@@ -27,7 +27,6 @@ module bottle_fsm(
     reg [11:0] acc_total;        // 药片累计 000-999
     reg [7:0]  acc_cur;          // 本瓶药片 00-99
     reg [7:0]  acc_btl;          // 已完成瓶 00-99
-    reg [1:0]  buzz_div;         // 蜂鸣器小分频, 10kHz/4 = 2.5kHz
 
     // ---- 输出连线 (完成/警报状态时第4-5位切换至瓶数) ----
     assign total_pills_bcd   = acc_total;
@@ -35,9 +34,9 @@ module bottle_fsm(
                                 ? acc_btl : acc_cur;
     assign bottle_count_bcd  = acc_btl;
 
-    // ---- 蜂鸣器: 报警态输出方波, 适配无源蜂鸣器 ----
+    // ---- 蜂鸣器: 报警态复用主时钟方波, 不增加寄存器 ----
     wire alarm_on = (work_state == S_HALT) | (work_state == S_WARN);
-    assign buzzer = alarm_on & buzz_div[1];
+    assign buzzer = alarm_on & clk;
 
     // ---- 预判逻辑 ----
     wire bottle_about_full = (acc_cur == (pills_per_bottle - 8'h01))
@@ -101,14 +100,8 @@ module bottle_fsm(
             acc_total  <= 12'h000;
             acc_cur    <= 8'h00;
             acc_btl    <= 8'h00;
-            buzz_div   <= 2'b00;
         end
         else begin
-            if (alarm_on)
-                buzz_div <= buzz_div + 1'b1;
-            else
-                buzz_div <= 2'b00;
-
             case (work_state)
                 S_CFG: begin
                     acc_total <= 12'h000;
