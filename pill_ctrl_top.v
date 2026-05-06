@@ -98,7 +98,7 @@ module pill_ctrl_top(
     always @(posedge clk_10kHz)
         buzz_cnt <= buzz_cnt + 1'b1;
 
-    assign buzzer = buzzer_en & buzz_cnt[1];
+    assign buzzer = buzzer_en & buzz_cnt[1] & (fsm_st[0] | clk_1Hz);
 
     seg_output u_seg_output(
         .clk_1Hz          (clk_1Hz),
