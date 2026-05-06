@@ -30,11 +30,11 @@ module seg_output(
     wire is_cfg_mode  = (~mode_switch) & (work_state == S_CFG); // 处于真实配置态
     wire fl_btl_sel   = is_cfg_mode &  setting_switch & flash;  // 瓶数参数闪烁
     wire fl_fill_sel  = is_cfg_mode & ~setting_switch & flash;  // 装入量参数闪烁
-    wire fl_done      = mode_switch  & (work_state == S_HALT) & flash; // 完成闪烁
+    wire fl_done      = (work_state == S_HALT) & flash; // 完成闪烁
 
     // ---- 组合逻辑: 生成待显示 BCD 值 ----
     always @(*) begin
-        if (~mode_switch) begin
+        if (is_cfg_mode) begin
             // ===== 配置画面 =====
             display1 = 4'h0;
 
