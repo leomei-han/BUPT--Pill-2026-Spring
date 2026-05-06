@@ -1,0 +1,17 @@
+db/
+incremental_db/
+*.fit.rpt
+*.map.rpt
+*.tan.rpt
+*.asm.rpt
+*.flow.rpt
+*.fit.summary
+*.map.summary
+*.tan.summary
+*.pin
+*.pof
+*.dpf
+*.done
+*.qws
+*_assignment_defaults.qdf
+.DS_Store
