@@ -30,6 +30,7 @@ module pill_ctrl_top(
     wire [11:0] sum_pills;         // 累计药片(3位BCD)
     wire [7:0]  cur_pills;         // 本瓶药片(2位BCD)
     wire [7:0]  done_btl;          // 已完成瓶数(2位BCD)
+    wire        buzzer_en;          // 蜂鸣器使能(FSM输出)
 
     // ---------- 参数寄存器 ----------
     reg [7:0] cfg_fill;            // 每瓶装入量
@@ -42,12 +43,12 @@ module pill_ctrl_top(
 
     assign trig_pulse = (r_qd == 2'b01);   // 捕获上升沿
 
-    // ---------- CLR 同步 (3-bit 移位, 原信号低有效) ----------
-    reg [2:0] r_clr;
+    // ---------- CLR 同步 (2-bit 移位, 原信号低有效) ----------
+    reg [1:0] r_clr;
     always @(posedge clk_10kHz)
-        r_clr <= {r_clr[1:0], ~CLR};
+        r_clr <= {r_clr[0], ~CLR};
 
-    assign sys_rst = r_clr[2];
+    assign sys_rst = r_clr[1];
 
     // ---------- 参数锁存 ----------
     always @(posedge clk_10kHz or posedge sys_rst) begin
@@ -89,13 +90,18 @@ module pill_ctrl_top(
         .total_pills_bcd  (sum_pills),
         .current_pills_bcd(cur_pills),
         .bottle_count_bcd (done_btl),
-        .buzzer           (buzzer)
+        .buzzer           (buzzer_en)
     );
 
+    // ---------- 蜂鸣器驱动: 2.5 kHz 方波(无源蜂鸣器需要交流信号) ----------
+    reg [1:0] buzz_cnt;
+    always @(posedge clk_10kHz)
+        buzz_cnt <= buzz_cnt + 1'b1;
+
+    assign buzzer = buzzer_en & buzz_cnt[1] & (fsm_st[0] | clk_1Hz);
+
     seg_output u_seg_output(
-        .clk              (clk_10kHz),
         .clk_1Hz          (clk_1Hz),
-        .reset            (sys_rst),
         .mode_switch      (sw_mode),
         .setting_switch   (sw_sel),
         .input_data       (sw_dat),

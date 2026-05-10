@@ -30,12 +30,11 @@ module bottle_fsm(
 
     // ---- 输出连线 (完成/警报状态时第4-5位切换至瓶数) ----
     assign total_pills_bcd   = acc_total;
-    assign current_pills_bcd = (work_state == S_HALT || work_state == S_WARN)
-                                ? acc_btl : acc_cur;
+    assign current_pills_bcd = acc_cur;
     assign bottle_count_bcd  = acc_btl;
 
     // ---- 蜂鸣器: 目标达成 或 警报态均拉高 ----
-    assign buzzer = (work_state == S_HALT) | (work_state == S_WARN);
+    assign buzzer = work_state[1];
 
     // ---- 预判逻辑 ----
     wire bottle_about_full = (acc_cur == (pills_per_bottle - 8'h01))
@@ -103,21 +102,18 @@ module bottle_fsm(
         else begin
             case (work_state)
                 S_CFG: begin
-                    acc_total <= 12'h000;
-                    acc_cur   <= 8'h00;
-                    acc_btl   <= 8'h00;
                     if (qd_pressed & mode_switch)
                         work_state <= S_RUN;
                 end
 
-                S_RUN: begin
+                S_RUN, S_WARN: begin
                     if (pill_pulse) begin
                         acc_total <= inc12(acc_total);
                         acc_cur   <= inc8(acc_cur);
                         if (bottle_about_full) begin
                             acc_cur <= 8'h00;
                             acc_btl <= inc8(acc_btl);
-                            if (goal_about_done)
+                            if (work_state == S_RUN && goal_about_done)
                                 work_state <= S_HALT;
                         end
                     end
@@ -126,17 +122,6 @@ module bottle_fsm(
                 S_HALT: begin
                     if (qd_pressed)
                         work_state <= S_WARN;
-                end
-
-                S_WARN: begin
-                    if (pill_pulse) begin
-                        acc_total <= inc12(acc_total);
-                        acc_cur   <= inc8(acc_cur);
-                        if (bottle_about_full) begin
-                            acc_cur <= 8'h00;
-                            acc_btl <= inc8(acc_btl);
-                        end
-                    end
                 end
 
                 default: work_state <= S_CFG;
