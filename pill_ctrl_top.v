@@ -13,6 +13,7 @@ module pill_ctrl_top(
     output [4:1]  display3,
     output [4:1]  display4,
     output [4:1]  display5,
+    output [6:0]  LG1,
     output        buzzer
 );
 
@@ -33,6 +34,7 @@ module pill_ctrl_top(
     wire [11:0] sum_pills;         // 累计药片(3位BCD)
     wire [7:0]  cur_pills;         // 本瓶药片(2位BCD)
     wire [7:0]  done_btl;          // 已完成瓶数(2位BCD)
+    wire        bottle_full_hint;  // 当前瓶即将满
     wire        buzzer_en;          // 蜂鸣器使能(FSM输出)
 
     // ---------- 参数寄存器 ----------
@@ -72,7 +74,6 @@ module pill_ctrl_top(
     pulse_sync u_pulse_sync(
         .clk_10kHz  (clk_10kHz),
         .clk_1Hz    (clk_1Hz),
-        .reset      (sys_rst),
         .pill_pulse (med_tick)
     );
 
@@ -94,6 +95,7 @@ module pill_ctrl_top(
         .total_pills_bcd  (sum_pills),
         .current_pills_bcd(cur_pills),
         .bottle_count_bcd (done_btl),
+        .bottle_full_hint  (bottle_full_hint),
         .buzzer           (buzzer_en)
     );
 
@@ -115,12 +117,14 @@ module pill_ctrl_top(
         .total_pills_bcd  (sum_pills),
         .current_pills_bcd(cur_pills),
         .bottle_count_bcd (done_btl),
+        .bottle_full_hint  (bottle_full_hint),
         .work_state       (fsm_st),
         .display1         (display1),
         .display2         (display2),
         .display3         (display3),
         .display4         (display4),
-        .display5         (display5)
+        .display5         (display5),
+        .LG1              (LG1)
     );
 
 endmodule

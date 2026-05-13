@@ -5,7 +5,6 @@
 module pulse_sync(
     input  clk_10kHz,
     input  clk_1Hz,
-    input  reset,
     output pill_pulse
 );
 
@@ -13,10 +12,7 @@ module pulse_sync(
     reg [2:0] sr;
 
     always @(posedge clk_10kHz) begin
-        if (reset)
-            sr <= 3'b000;
-        else
-            sr <= {sr[1:0], clk_1Hz};
+        sr <= {sr[1:0], clk_1Hz};
     end
 
     // 取中间两位做上升沿判断

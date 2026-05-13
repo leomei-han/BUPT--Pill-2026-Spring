@@ -51,6 +51,13 @@ set_location_assignment PIN_60 -to QD
 set_location_assignment PIN_52 -to buzzer
 set_location_assignment PIN_58 -to clk_1Hz
 set_location_assignment PIN_56 -to clk_10kHz
+set_location_assignment PIN_44 -to LG1[0]
+set_location_assignment PIN_45 -to LG1[1]
+set_location_assignment PIN_46 -to LG1[2]
+set_location_assignment PIN_48 -to LG1[3]
+set_location_assignment PIN_49 -to LG1[4]
+set_location_assignment PIN_50 -to LG1[5]
+set_location_assignment PIN_51 -to LG1[6]
 set_location_assignment PIN_24 -to display1[4]
 set_location_assignment PIN_22 -to display1[3]
 set_location_assignment PIN_21 -to display1[2]

@@ -14,6 +14,7 @@ module bottle_fsm(
     output [11:0] total_pills_bcd,
     output [7:0]  current_pills_bcd,
     output [7:0]  bottle_count_bcd,
+    output        bottle_full_hint,
     output        buzzer
 );
 
@@ -41,6 +42,7 @@ module bottle_fsm(
                              && (pills_per_bottle != 8'h00);
     wire goal_about_done   = (acc_btl == (target_bottles - 8'h01))
                              && (target_bottles != 8'h00);
+    assign bottle_full_hint = bottle_about_full;
 
     // ===========================================================
     //  BCD +1 辅助函数 — 使用等值检测(==9)节省乘积项
@@ -95,13 +97,13 @@ module bottle_fsm(
     always @(posedge clk) begin
         if (reset) begin
             work_state <= S_CFG;
-            acc_total  <= 12'h000;
-            acc_cur    <= 8'h00;
-            acc_btl    <= 8'h00;
         end
         else begin
             case (work_state)
                 S_CFG: begin
+                    acc_total <= 12'h000;
+                    acc_cur   <= 8'h00;
+                    acc_btl   <= 8'h00;
                     if (qd_pressed & mode_switch)
                         work_state <= S_RUN;
                 end

@@ -13,19 +13,32 @@ module seg_output(
     input  [11:0] total_pills_bcd,
     input  [7:0]  current_pills_bcd,
     input  [7:0]  bottle_count_bcd,
+    input         bottle_full_hint,
     input  [1:0]  work_state,
     output reg [4:1] display1,
     output reg [4:1] display2,
     output reg [4:1] display3,
     output reg [4:1] display4,
-    output reg [4:1] display5
+    output reg [4:1] display5,
+    output reg [6:0] LG1
 );
 
     // ---- 状态常量 (保持与 bottle_fsm 一致) ----
     localparam S_CFG  = 2'b00;
+    localparam S_RUN  = 2'b01;
     localparam S_HALT = 2'b10;
+    localparam S_WARN = 2'b11;
     localparam [7:0] DEFAULT_FILL = 8'h10;
     localparam [7:0] DEFAULT_GOAL = 8'h05;
+
+    // LG1[0]..LG1[6] 对应七段 a..g, 高电平点亮。
+    localparam [6:0] SEG_BLANK = 7'b0000000;
+    localparam [6:0] SEG_0     = 7'b0111111;
+    localparam [6:0] SEG_1     = 7'b0000110;
+    localparam [6:0] SEG_2     = 7'b1011011;
+    localparam [6:0] SEG_3     = 7'b1001111;
+    localparam [6:0] SEG_4     = 7'b1100110;
+    localparam [6:0] SEG_E     = 7'b1111001;
 
     // ---- 闪烁条件 ----
     wire flash = clk_1Hz;                                       // 1 Hz 节拍
@@ -76,6 +89,20 @@ module seg_output(
                 display5 = work_state[1] ? bottle_count_bcd[3:0] : current_pills_bcd[3:0];
             end
         end
+
+        // LG1 状态位: 非法输入 > 完成 > 报警 > 当前瓶满 > 运行 > 配置
+        if (invalid_cfg)
+            LG1 = flash ? SEG_BLANK : SEG_E;
+        else if (work_state == S_HALT)
+            LG1 = SEG_4;
+        else if (work_state == S_WARN)
+            LG1 = SEG_3;
+        else if ((work_state == S_RUN) & bottle_full_hint)
+            LG1 = SEG_2;
+        else if (work_state == S_RUN)
+            LG1 = SEG_1;
+        else
+            LG1 = SEG_0;
     end
 
 endmodule
