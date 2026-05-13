@@ -6,7 +6,7 @@ module pill_ctrl_top(
     input  clk_10kHz,
     input  clk_1Hz,
     input  QD,
-    input  CLR,
+    input  reset_sw,
     input  [10:1] switches,
     output [4:1]  display1,
     output [4:1]  display2,
@@ -20,6 +20,9 @@ module pill_ctrl_top(
     wire       sw_mode   = switches[10];    // 1 = 运行, 0 = 配置
     wire       sw_sel    = switches[9];     // 0 = 装入量, 1 = 瓶数
     wire [7:0] sw_dat    = switches[8:1];   // BCD 数据
+
+    localparam [7:0] DEFAULT_FILL = 8'h10;  // 默认 10 颗/瓶
+    localparam [7:0] DEFAULT_GOAL = 8'h05;  // 默认 5 瓶
 
     // ---------- 内部信号 ----------
     wire        trig_pulse;         // 消抖后的 QD 单脉冲
@@ -43,24 +46,25 @@ module pill_ctrl_top(
 
     assign trig_pulse = (r_qd == 2'b01);   // 捕获上升沿
 
-    // ---------- CLR 同步 (2-bit 移位, 原信号低有效) ----------
-    reg [1:0] r_clr;
+    // ---------- 复位电平开关同步 (高电平有效) ----------
+    wire raw_reset_sw = reset_sw;
+    reg [1:0] r_reset_sw;
     always @(posedge clk_10kHz)
-        r_clr <= {r_clr[0], ~CLR};
+        r_reset_sw <= {r_reset_sw[0], raw_reset_sw};
 
-    assign sys_rst = r_clr[1];
+    assign sys_rst = r_reset_sw[1];
 
     // ---------- 参数锁存 ----------
-    always @(posedge clk_10kHz or posedge sys_rst) begin
+    always @(posedge clk_10kHz) begin
         if (sys_rst) begin
-            cfg_fill <= 8'h10;    // 上电默认 10 颗/瓶
-            cfg_goal <= 8'h05;    // 上电默认 5 瓶
+            cfg_fill <= DEFAULT_FILL;
+            cfg_goal <= DEFAULT_GOAL;
         end
-        else if (~sw_mode & trig_pulse & dat_ok) begin
+        else if (~sw_mode & trig_pulse) begin
             if (~sw_sel)
-                cfg_fill <= sw_dat;
+                cfg_fill <= dat_ok ? sw_dat : DEFAULT_FILL;
             else
-                cfg_goal <= sw_dat;
+                cfg_goal <= dat_ok ? sw_dat : DEFAULT_GOAL;
         end
     end
 

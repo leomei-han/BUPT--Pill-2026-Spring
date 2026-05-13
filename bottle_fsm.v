@@ -92,7 +92,7 @@ module bottle_fsm(
     // ===========================================================
     //  主控 FSM
     // ===========================================================
-    always @(posedge clk or posedge reset) begin
+    always @(posedge clk) begin
         if (reset) begin
             work_state <= S_CFG;
             acc_total  <= 12'h000;

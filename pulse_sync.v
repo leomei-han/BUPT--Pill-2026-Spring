@@ -12,7 +12,7 @@ module pulse_sync(
     // 三级移位寄存器同步 + 边沿检测
     reg [2:0] sr;
 
-    always @(posedge clk_10kHz or posedge reset) begin
+    always @(posedge clk_10kHz) begin
         if (reset)
             sr <= 3'b000;
         else

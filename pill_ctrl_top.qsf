@@ -46,7 +46,7 @@ set_global_assignment -name USE_GENERATED_PHYSICAL_CONSTRAINTS OFF -section_id e
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
 set_global_assignment -name MAX7000_DEVICE_IO_STANDARD TTL
-set_location_assignment PIN_1 -to CLR
+set_location_assignment PIN_63 -to reset_sw
 set_location_assignment PIN_60 -to QD
 set_location_assignment PIN_52 -to buzzer
 set_location_assignment PIN_58 -to clk_1Hz
@@ -80,4 +80,4 @@ set_location_assignment PIN_76 -to switches[6]
 set_location_assignment PIN_75 -to switches[7]
 set_location_assignment PIN_74 -to switches[8]
 set_location_assignment PIN_73 -to switches[9]
-set_location_assignment PIN_70 -to switches[10]
+set_location_assignment PIN_70 -to switches[10]

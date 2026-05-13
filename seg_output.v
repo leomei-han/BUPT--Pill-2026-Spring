@@ -24,6 +24,8 @@ module seg_output(
     // ---- 状态常量 (保持与 bottle_fsm 一致) ----
     localparam S_CFG  = 2'b00;
     localparam S_HALT = 2'b10;
+    localparam [7:0] DEFAULT_FILL = 8'h10;
+    localparam [7:0] DEFAULT_GOAL = 8'h05;
 
     // ---- 闪烁条件 ----
     wire flash = clk_1Hz;                                       // 1 Hz 节拍
@@ -31,17 +33,18 @@ module seg_output(
     wire fl_btl_sel   = is_cfg_mode &  setting_switch & flash;  // 瓶数参数闪烁
     wire fl_fill_sel  = is_cfg_mode & ~setting_switch & flash;  // 装入量参数闪烁
     wire fl_done      = (work_state == S_HALT) & flash; // 完成闪烁
+    wire invalid_cfg   = is_cfg_mode & ~input_valid;
 
     // ---- 组合逻辑: 生成待显示 BCD 值 ----
     always @(*) begin
         if (is_cfg_mode) begin
             // ===== 配置画面 =====
-            display1 = 4'h0;
+            display1 = (invalid_cfg & flash) ? 4'hF : 4'h0;
 
             // 位 2-3: 目标瓶数
-            if (is_cfg_mode & setting_switch & input_valid) begin
-                display2 = fl_btl_sel ? 4'hF : input_data[7:4];
-                display3 = fl_btl_sel ? 4'hF : input_data[3:0];
+            if (setting_switch) begin
+                display2 = fl_btl_sel ? 4'hF : (input_valid ? input_data[7:4] : DEFAULT_GOAL[7:4]);
+                display3 = fl_btl_sel ? 4'hF : (input_valid ? input_data[3:0] : DEFAULT_GOAL[3:0]);
             end
             else begin
                 display2 = fl_btl_sel ? 4'hF : target_bottles[7:4];
@@ -49,9 +52,9 @@ module seg_output(
             end
 
             // 位 4-5: 每瓶装入量
-            if (is_cfg_mode & ~setting_switch & input_valid) begin
-                display4 = fl_fill_sel ? 4'hF : input_data[7:4];
-                display5 = fl_fill_sel ? 4'hF : input_data[3:0];
+            if (~setting_switch) begin
+                display4 = fl_fill_sel ? 4'hF : (input_valid ? input_data[7:4] : DEFAULT_FILL[7:4]);
+                display5 = fl_fill_sel ? 4'hF : (input_valid ? input_data[3:0] : DEFAULT_FILL[3:0]);
             end
             else begin
                 display4 = fl_fill_sel ? 4'hF : pills_per_bottle[7:4];
