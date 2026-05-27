@@ -82,11 +82,11 @@ module seg_output(
                 display4 = 4'hF;  display5 = 4'hF;
             end
             else begin
-                display1 = total_pills_bcd[11:8];
-                display2 = total_pills_bcd[7:4];
-                display3 = total_pills_bcd[3:0];
-                display4 = work_state[1] ? bottle_count_bcd[7:4] : current_pills_bcd[7:4];
-                display5 = work_state[1] ? bottle_count_bcd[3:0] : current_pills_bcd[3:0];
+                display1 = 4'hF;
+                display2 = bottle_count_bcd[7:4];
+                display3 = bottle_count_bcd[3:0];
+                display4 = current_pills_bcd[7:4];
+                display5 = current_pills_bcd[3:0];
             end
         end
 

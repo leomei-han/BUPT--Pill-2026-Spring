@@ -331,7 +331,8 @@ assign buzzer = (work_state == S_HALT) | (work_state == S_WARN);
 - 位 4–5：每瓶装入量
 
 运行画面（`mode_switch = 1`）：
-- 位 1–3：已装药片总数（百-十-个）
+- 位 1：空白
+- 位 2–3：已完成瓶数
 - 位 4–5：当前瓶内药片数
 
 ### 闪烁规则
