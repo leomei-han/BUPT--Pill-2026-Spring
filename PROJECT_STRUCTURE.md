@@ -325,12 +325,12 @@ assign buzzer = (work_state == S_HALT) | (work_state == S_WARN);
 
 ### 显示页面
 
-配置画面（`mode_switch = 0`）：
+配置画面（`work_state = S_CFG`）：
 - 位 1：固定显示 0
 - 位 2–3：目标瓶数
 - 位 4–5：每瓶装入量
 
-运行画面（`mode_switch = 1`）：
+运行画面（`work_state != S_CFG`）：
 - 位 1：空白
 - 位 2–3：已完成瓶数
 - 位 4–5：当前瓶内药片数

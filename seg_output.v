@@ -42,7 +42,7 @@ module seg_output(
 
     // ---- 闪烁条件 ----
     wire flash = clk_1Hz;                                       // 1 Hz 节拍
-    wire is_cfg_mode  = (~mode_switch) & (work_state == S_CFG); // 处于真实配置态
+    wire is_cfg_mode  = (work_state == S_CFG);                  // FSM 未启动前保持配置显示
     wire fl_btl_sel   = is_cfg_mode &  setting_switch & flash;  // 瓶数参数闪烁
     wire fl_fill_sel  = is_cfg_mode & ~setting_switch & flash;  // 装入量参数闪烁
     wire fl_done      = (work_state == S_HALT) & flash; // 完成闪烁
