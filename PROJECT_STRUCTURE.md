@@ -329,6 +329,8 @@ assign buzzer = (work_state == S_HALT) | (work_state == S_WARN);
 - 位 1：固定显示 0
 - 位 2–3：目标瓶数
 - 位 4–5：每瓶装入量
+- 只有 `mode_switch = 0` 时预览拨码输入并闪烁正在编辑的参数
+- `mode_switch = 1` 且尚未按 QD 启动时，稳定显示已锁存参数
 
 运行画面（`work_state != S_CFG`）：
 - 位 1：空白

@@ -43,10 +43,11 @@ module seg_output(
     // ---- 闪烁条件 ----
     wire flash = clk_1Hz;                                       // 1 Hz 节拍
     wire is_cfg_mode  = (work_state == S_CFG);                  // FSM 未启动前保持配置显示
-    wire fl_btl_sel   = is_cfg_mode &  setting_switch & flash;  // 瓶数参数闪烁
-    wire fl_fill_sel  = is_cfg_mode & ~setting_switch & flash;  // 装入量参数闪烁
+    wire is_edit_mode = is_cfg_mode & ~mode_switch;             // SW10=0 时允许编辑预览
+    wire fl_btl_sel   = is_edit_mode &  setting_switch & flash; // 瓶数参数闪烁
+    wire fl_fill_sel  = is_edit_mode & ~setting_switch & flash; // 装入量参数闪烁
     wire fl_done      = (work_state == S_HALT) & flash; // 完成闪烁
-    wire invalid_cfg   = is_cfg_mode & ~input_valid;
+    wire invalid_cfg   = is_edit_mode & ~input_valid;
 
     // ---- 组合逻辑: 生成待显示 BCD 值 ----
     always @(*) begin
@@ -55,7 +56,7 @@ module seg_output(
             display1 = (invalid_cfg & flash) ? 4'hF : 4'h0;
 
             // 位 2-3: 目标瓶数
-            if (setting_switch) begin
+            if (is_edit_mode & setting_switch) begin
                 display2 = fl_btl_sel ? 4'hF : (input_valid ? input_data[7:4] : DEFAULT_GOAL[7:4]);
                 display3 = fl_btl_sel ? 4'hF : (input_valid ? input_data[3:0] : DEFAULT_GOAL[3:0]);
             end
@@ -65,7 +66,7 @@ module seg_output(
             end
 
             // 位 4-5: 每瓶装入量
-            if (~setting_switch) begin
+            if (is_edit_mode & ~setting_switch) begin
                 display4 = fl_fill_sel ? 4'hF : (input_valid ? input_data[7:4] : DEFAULT_FILL[7:4]);
                 display5 = fl_fill_sel ? 4'hF : (input_valid ? input_data[3:0] : DEFAULT_FILL[3:0]);
             end
