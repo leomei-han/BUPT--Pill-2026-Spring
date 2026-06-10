@@ -23,7 +23,7 @@ module pill_ctrl_top(
     wire       sw_mode   = switches[10];    // SW10: 1=运行模式, 0=配置模式
     wire       sw_sel    = switches[9];     // SW9:  0=设置装入量, 1=设置瓶数
     wire [7:0] sw_dat    = switches[8:1];   // SW8~SW1: 8 位数据输入
-                                            // 装入量: 2 位 BCD（01~50）
+                                            // 装入量: 2 位 BCD（01~99）
                                             // 瓶数: 扩展十位编码，SW8~5 二进制十位 0~15，SW4~1 BCD 个位（001~159）
 
     // 安全默认值：当输入非法时自动回退到这些值

@@ -1,6 +1,6 @@
 // ============================================================
 //  sw_checker  —  输入范围检查
-//  装入量范围: 01 ~ 50（纯 BCD）
+//  装入量范围: 01 ~ 99（纯 BCD）
 //  瓶数范围:   001 ~ 159（扩展十位编码: 十位二进制 0~15, 个位 BCD）
 //
 //  纯组合逻辑模块：没有任何寄存器，不消耗宏单元的触发器资源
@@ -24,15 +24,9 @@ module sw_checker(
         input_valid = 1'b0;             // 默认非法
 
         if (~setting_switch) begin
-            // ---- 每瓶装入量: 01-50（两位都必须是合法 BCD）----
-            if (hi_legal & lo_legal) begin
-                case (hi)
-                    4'd0: input_valid = lo_nonzero;             // 01-09
-                    4'd1, 4'd2, 4'd3, 4'd4: input_valid = 1'b1;// 10-49（全部合法）
-                    4'd5: input_valid = (lo == 4'd0);           // 仅 50 合法
-                    default: input_valid = 1'b0;                // 51+ 拒绝
-                endcase
-            end
+            // ---- 每瓶装入量: 01-99（纯 BCD）----
+            // 两位都必须是合法 BCD，排除全零；不再有上限 case 判断
+            input_valid = hi_legal & lo_legal & (lo_nonzero | hi_nonzero);
         end
         else begin
             // ---- 目标瓶数: 001-159（扩展十位编码）----
