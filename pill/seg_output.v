@@ -99,7 +99,7 @@ module seg_output(
                 display4 = 4'hF;  display5 = 4'hF;
             end
             else begin
-                display1 = btl_ge100 ? btl_hund : 4'hF; // 第 1 位：瓶数百位（<100 时灭，保持原外观）
+                display1 = btl_hund;                    // 第 1 位：瓶数百位（含 0 常显，与配置画面一致）
                 display2 = btl_tens;                    // 第 2 位：已完成瓶数十位
                 display3 = btl_src[3:0];                // 第 3 位：已完成瓶数个位
                 display4 = current_pills_bcd[7:4];      // 第 4 位：当前瓶药片十位
